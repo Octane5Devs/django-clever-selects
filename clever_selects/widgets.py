@@ -7,10 +7,10 @@ class ChainedSelectMixin(object):
     def __init__(self, parent_field=None, ajax_url=None, *args, **kwargs):
         self.parent_field = parent_field
         self.ajax_url = ajax_url
-        super().__init__(*args, **kwargs)
+        super(ChainedSelectMixin, self).__init__(*args, **kwargs)
 
     def get_context(self, name, value, attrs):
-        context = super().get_context(name, value, attrs)
+        context = super(ChainedSelectMixin, self).get_context(name, value, attrs)
 
         field_prefix = attrs['id'][:attrs['id'].rfind('-') + 1]
 
