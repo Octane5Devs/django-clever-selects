@@ -34,6 +34,7 @@ class ChainedChoicesMixin(object):
         self.chained_fields_names = self.get_fields_names_by_type(ChainedChoiceField)
         self.chained_model_fields_names = self.get_fields_names_by_type(ChainedModelChoiceField) + self.get_fields_names_by_type(ChainedModelMultipleChoiceField)
         self.user = kwargs.get('user', self.user)
+        self.owner = kwargs.get('owner', self.owner)
 
         if kwargs.get('data', None) is not None:
             self.set_choices_via_ajax(kwargs['data'])
@@ -113,10 +114,8 @@ class ChainedChoicesMixin(object):
                     for key, value in params.items():
                         fake_request.GET[key] = value
 
-                    if hasattr(self, "user") and self.user:
-                        fake_request.user = self.user
-                    else:
-                        fake_request.user = AnonymousUser()
+                    fake_request.user = self.user
+                    fake_request.owner = self.owner
 
                     # Get the response
                     response = url_callable(fake_request)
@@ -209,6 +208,12 @@ class ChainedChoicesForm(forms.Form, ChainedChoicesMixin):
     def __init__(self, language_code=None, *args, **kwargs):
         if kwargs.get('user'):
             self.user = kwargs.pop('user')  # To get request.user. Do not use kwargs.pop('user', None) due to potential security hole
+        else:
+            self.user = AnonymousUser()
+        if kwargs.get('owner'):
+            self.owner = kwargs.pop('owner')
+        else:
+            self.owner = None
         super(ChainedChoicesForm, self).__init__(*args, **kwargs)
         self.language_code = language_code
         self.init_chained_choices(*args, **kwargs)
@@ -232,6 +237,12 @@ class ChainedChoicesModelForm(forms.ModelForm, ChainedChoicesMixin):
     def __init__(self, *args, **kwargs):
         if kwargs.get('user'):
             self.user = kwargs.pop('user')  # To get request.user. Do not use kwargs.pop('user', None) due to potential security hole
+        else:
+            self.user = AnonymousUser()
+        if kwargs.get('owner'):
+            self.owner = kwargs.pop('owner')
+        else:
+            self.owner = None
         super(ChainedChoicesModelForm, self).__init__(*args, **kwargs)
         self.language_code = kwargs.get('language_code', None)
         self.init_chained_choices(*args, **kwargs)
