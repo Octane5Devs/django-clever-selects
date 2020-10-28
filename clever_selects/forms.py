@@ -35,6 +35,8 @@ class ChainedChoicesMixin(object):
         self.chained_model_fields_names = self.get_fields_names_by_type(ChainedModelChoiceField) + self.get_fields_names_by_type(ChainedModelMultipleChoiceField)
         self.user = kwargs.get('user', self.user)
         self.owner = kwargs.get('owner', self.owner)
+        self.reviewer = kwargs.get('reviewer', self.reviewer)
+        self.owner_prefs = kwargs.get('owner_prefs', self.owner_prefs)
 
         if kwargs.get('data', None) is not None:
             self.set_choices_via_ajax(kwargs['data'])
@@ -116,6 +118,8 @@ class ChainedChoicesMixin(object):
 
                     fake_request.user = self.user
                     fake_request.owner = self.owner
+                    fake_request.reviewer = self.reviewer
+                    fake_request.owner_prefs = self.owner_prefs
 
                     # Get the response
                     response = url_callable(fake_request)
