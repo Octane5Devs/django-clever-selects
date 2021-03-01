@@ -25,6 +25,9 @@ class ChainedChoicesMixin(object):
     It loads the options when there is already an instance or initial data.
     """
     user = AnonymousUser()
+    owner = None
+    reviewer = None
+    owner_prefs = None
     prefix = None
     fields = []
     chained_fields_names = []
