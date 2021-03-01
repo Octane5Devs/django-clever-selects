@@ -24,7 +24,10 @@ class ChainedChoicesMixin(object):
     Form Mixin to be used with ChainedChoicesForm and ChainedChoicesModelForm.
     It loads the options when there is already an instance or initial data.
     """
-    user = None
+    user = AnonymousUser()
+    owner = None
+    reviewer = None
+    owner_prefs = None
     prefix = None
     fields = []
     chained_fields_names = []
@@ -33,10 +36,25 @@ class ChainedChoicesMixin(object):
     def init_chained_choices(self, *args, **kwargs):
         self.chained_fields_names = self.get_fields_names_by_type(ChainedChoiceField)
         self.chained_model_fields_names = self.get_fields_names_by_type(ChainedModelChoiceField) + self.get_fields_names_by_type(ChainedModelMultipleChoiceField)
-        self.user = kwargs.get('user', self.user)
-        self.owner = kwargs.get('owner', self.owner)
-        self.reviewer = kwargs.get('reviewer', self.reviewer)
-        self.owner_prefs = kwargs.get('owner_prefs', self.owner_prefs)
+        try:
+            self.user = kwargs.get('user', self.user)
+        except AttributeError:
+            self.user = AnonymousUser()
+
+        try:
+            self.owner = kwargs.get('owner', self.owner)
+        except AttributeError:
+            self.owner = None
+
+        try:
+            self.reviewer = kwargs.get('reviewer', self.reviewer)
+        except AttributeError:
+            self.reviewer = None
+
+        try:
+            self.owner_prefs = kwargs.get('owner_prefs', self.owner_prefs)
+        except AttributeError:
+            self.owner_prefs = None
 
         if kwargs.get('data', None) is not None:
             self.set_choices_via_ajax(kwargs['data'])
@@ -210,14 +228,10 @@ class ChainedChoicesForm(forms.Form, ChainedChoicesMixin):
     """
 
     def __init__(self, language_code=None, *args, **kwargs):
-        if kwargs.get('user'):
-            self.user = kwargs.pop('user')  # To get request.user. Do not use kwargs.pop('user', None) due to potential security hole
-        else:
-            self.user = AnonymousUser()
-        if kwargs.get('owner'):
-            self.owner = kwargs.pop('owner')
-        else:
-            self.owner = None
+        self.user = kwargs.pop('user', AnonymousUser())
+        self.owner = kwargs.pop('owner', None)
+        self.reviewer = kwargs.pop('reviewer', None)
+        self.owner_prefs = kwargs.pop('owner_prefs', None)
         super(ChainedChoicesForm, self).__init__(*args, **kwargs)
         self.language_code = language_code
         self.init_chained_choices(*args, **kwargs)
@@ -239,14 +253,10 @@ class ChainedChoicesModelForm(forms.ModelForm, ChainedChoicesMixin):
     """
 
     def __init__(self, *args, **kwargs):
-        if kwargs.get('user'):
-            self.user = kwargs.pop('user')  # To get request.user. Do not use kwargs.pop('user', None) due to potential security hole
-        else:
-            self.user = AnonymousUser()
-        if kwargs.get('owner'):
-            self.owner = kwargs.pop('owner')
-        else:
-            self.owner = None
+        self.user = kwargs.pop('user', AnonymousUser())  # To get request.user. Do not use kwargs.pop('user', None) due to potential security hole
+        self.owner = kwargs.pop('owner', None)
+        self.reviewer = kwargs.pop('reviewer', None)
+        self.owner_prefs = kwargs.pop('owner_prefs', None)
         super(ChainedChoicesModelForm, self).__init__(*args, **kwargs)
         self.language_code = kwargs.get('language_code', None)
         self.init_chained_choices(*args, **kwargs)
