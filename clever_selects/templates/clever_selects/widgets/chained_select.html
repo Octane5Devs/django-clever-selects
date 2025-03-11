@@ -2,7 +2,7 @@
 <script type="text/javascript">
     "use strict";
 
-    document.addEventListener("DOMContentLoaded", function() {
+    ("#{{ js_chained_id }}").ready(function() {
         var parentField = document.querySelector("#{{ js_parent_field_id }}");
         parentField.classList.add("chained-parent-field");
 
