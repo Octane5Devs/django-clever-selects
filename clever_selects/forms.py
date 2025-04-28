@@ -24,7 +24,8 @@ class ChainedChoicesMixin(object):
     Form Mixin to be used with ChainedChoicesForm and ChainedChoicesModelForm.
     It loads the options when there is already an instance or initial data.
     """
-    user = AnonymousUser()
+    request = HttpRequest()
+    user = None
     owner = None
     reviewer = None
     owner_prefs = None
@@ -37,7 +38,17 @@ class ChainedChoicesMixin(object):
         self.chained_fields_names = self.get_fields_names_by_type(ChainedChoiceField)
         self.chained_model_fields_names = self.get_fields_names_by_type(ChainedModelChoiceField) + self.get_fields_names_by_type(ChainedModelMultipleChoiceField)
         try:
+            self.request = kwargs.get('request', self.request)
+        except AttributeError:
+            self.request = HttpRequest()
+
+        try:
             self.user = kwargs.get('user', self.user)
+            if not self.user:
+                if hasattr(self.request, 'user'):
+                    self.user = self.request.user
+                else:
+                    self.user = AnonymousUser()
         except AttributeError:
             self.user = AnonymousUser()
 
