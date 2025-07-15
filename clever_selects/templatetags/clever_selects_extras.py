@@ -3,12 +3,11 @@ import logging
 from django import template
 from django.middleware.csrf import get_token
 from django.conf import settings
-from django.core.files.storage import import_storage_class
+from django.core.files.storage import get_storage_class
 from django.utils.safestring import mark_safe
+from django.templatetags.static import static
 
 from clever_selects import VERSION
-
-staticfiles_storage = import_storage_class(settings.STATICFILES_STORAGE)()
 
 register = template.Library()
 
@@ -33,5 +32,5 @@ def clever_selects_js_import(context, csrf=True):
                     "You must add 'django.contrib.messages.context_processors.request' "
                     "to your TEMPLATE_CONTEXT_PROCESSORS and render your views using a RequestContext.")
 
-    url = staticfiles_storage.url('js/clever-selects.js')
+    url = static('js/clever-selects.js')
     return mark_safe('<script src="%s?v=%s" type="text/javascript" charset="utf-8"></script>' % (url,  VERSION))
