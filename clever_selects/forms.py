@@ -1,20 +1,15 @@
-from __future__ import absolute_import
-
 import json
 
 from django import forms
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
 
-try:
-    from django.urls import reverse, resolve
-except:
-    from django.core.urlresolvers import reverse, resolve
+from django.urls import reverse, resolve
 
 from django.core.validators import EMPTY_VALUES
 from django.db import models
 from django.http.request import HttpRequest
-from django.utils.encoding import smart_str, force_str
+from django.utils.encoding import force_str, force_str
 
 from .form_fields import ChainedChoiceField, ChainedModelChoiceField, ChainedModelMultipleChoiceField
 
@@ -154,9 +149,9 @@ class ChainedChoicesMixin(object):
                     response = url_callable(fake_request)
 
                     # Apply the data (if it's returned)
-                    if smart_str(response.content):
+                    if force_str(response.content):
                         try:
-                            field.choices += json.loads(smart_str(response.content))
+                            field.choices += json.loads(force_str(response.content))
                         except ValueError:
                             raise ValueError('Data returned from request (url={url}, params={params}) could not be deserialized to Python object: {data}'.format(
                                 url=url,
@@ -224,7 +219,7 @@ class ChainedChoicesMixin(object):
         field = self.fields[attr_name]
         if hasattr(instance, attr_name):
             attribute = getattr(instance, attr_name)
-            attr_value = getattr(attribute, 'pk', smart_str(attribute)) if attribute else None
+            attr_value = getattr(attribute, 'pk', force_str(attribute)) if attribute else None
             setattr(self, '%s' % attr_name, attr_value)
 
             if hasattr(field, 'parent_field'):
