@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.forms import ChoiceField
@@ -62,7 +60,7 @@ class ChainedModelChoiceField(ModelChoiceField):
         """
         Validates that the input is in self.choices.
         """
-        super(ChoiceField, self).validate(value)
+        super().validate(value)
         if value and not self.valid_value(value):
             raise ValidationError(
                 self.error_messages['invalid_choice'],
