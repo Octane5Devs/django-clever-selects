@@ -5,7 +5,6 @@
 import json
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import EMPTY_VALUES
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 from django.utils.cache import add_never_cache_headers
@@ -28,7 +27,7 @@ class ChainedSelectChoicesView(View):
         self.field_value = request.GET.get("field_value", None)
         self.parent_field = request.GET.get("parent_field")
         self.parent_value = request.GET.get("parent_value")
-        if self.parent_value in EMPTY_VALUES + ('None', ):
+        if not self.parent_value or self.parent_value == 'None':
             return self.empty_response()
         return super(ChainedSelectChoicesView, self).dispatch(request, *args, **kwargs)
 
@@ -53,7 +52,7 @@ class ChainedSelectChoicesView(View):
 
     def get_choices(self):
         choices = []
-        if self.parent_value in EMPTY_VALUES + ('None', ) or self.get_child_set() is None:
+        if not self.parent_value or self.parent_value == 'None' or self.get_child_set() is None:
             return []
         try:
             for obj in self.get_child_set().all():
